@@ -1,7 +1,7 @@
 import twitter
 import os
 import sys
-
+import re
 
 class TwitterCmdLine(object):
     
@@ -13,8 +13,8 @@ class TwitterCmdLine(object):
         access_secret_token = os.environ.get('ACCESS_SECRET_TOKEN')
         
         #Enter the access tokens if no token exists
-        if not consumer_key or consumer_secret or \
-           not access_token or access_secret_token:
+        if not consumer_key or not consumer_secret or \
+           not access_token or not access_secret_token:
             consumer_key = raw_input("please enter your twitter consumer key")
             consumer_secret = raw_input("Please enter your twitter consumer secret")
             access_token = raw_input("Please enter your twitter access token")
@@ -29,15 +29,25 @@ class TwitterCmdLine(object):
         friends_list = self.api.GetFriends()
         for friend in friends_list:
             print friend.name
+    
+    def show_timeline_tweets(self, tweet_number):
+        pass
 
 if __name__ == '__main__':
     twitter_cmd = TwitterCmdLine()
     try:
         twitter_cmd.api.VerifyCredentials()
-    
+        
+        tweet_number = re.match('\d+', sys.argv[1])
+
+        if tweet_number:
+            tweet_number = tweet_number.group(0)
+            twitter_cmd.show_timeline_tweets(tweet_number)
+
         #python twitter_cmd_line.py friends will display friends
         if sys.argv[1] == 'friends':
             twitter_cmd.show_friends()
-    
+
+
     except twitter.TwitterError as errors:
         print errors.message[0]['message']
